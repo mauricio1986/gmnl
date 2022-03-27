@@ -106,7 +106,7 @@ contains \code{NA}'s.}
 
 \item{correlation}{only relevant if \code{ranp} is not \code{NULL}. If true, the correlation across random parameters is taken into account.}
 
-\item{bound.err}{only relevenat if model is \code{smnl} or \code{gmnl}. It indicates at which values the draws for the scale parameter are truncated. By default \code{bound.err = 2}, therefore a truncated normal distribution with truncation at -2 and +2 is used.}
+\item{bound.err}{only relevant if model is \code{smnl} or \code{gmnl}. It indicates at which values the draws for the scale parameter are truncated. By default \code{bound.err = 2}, therefore a truncated normal distribution with truncation at -2 and +2 is used.}
 
 \item{panel}{if \code{TRUE} a panel data model is estimated.}
 
