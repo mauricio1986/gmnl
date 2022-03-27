@@ -1,0 +1,39 @@
+Package: gmnl
+Type: Package
+Title: Multinomial Logit Models with Random Parameters
+Version: 1.1-3.2
+Date: 2020-05-27
+Authors@R: c(person("Mauricio", "Sarrias", role = c("aut", "cre"),
+                    email = "msarrias86@gmail.com", 
+                    comment = c(ORCID = "0000-0001-5932-4817")),
+             person("Ricardo", "Daziano", role = "aut",
+                    email = "daziano@cornell.edu"),
+             person("Yves", "Croissant", role = "ctb"))
+Description: An implementation of maximum simulated likelihood method for the
+    estimation of multinomial logit models with random coefficients as presented by Sarrias and Daziano (2017) <doi:10.18637/jss.v079.i02>.
+    Specifically, it allows estimating models with continuous heterogeneity
+    such as the mixed multinomial logit and the generalized multinomial logit.
+    It also allows estimating models with discrete heterogeneity such as the
+    latent class and the mixed-mixed multinomial logit model.
+Depends:
+    R (>= 3.6.0),
+    maxLik,
+    Formula
+Imports:
+    plotrix,
+    msm,
+    mlogit,
+    truncnorm,
+    stats,
+    graphics,
+    utils
+Suggests:
+    AER,
+    lmtest,
+    car,
+    memisc,
+    testthat
+URL: https://msarrias.com/description.html
+License: GPL (>= 2)
+RoxygenNote: 7.1.0
+Encoding: UTF-8

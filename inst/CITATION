@@ -1,0 +1,22 @@
+bibentry(bibtype = "Article",
+  title        = "Multinomial Logit Models with Continuous and Discrete Individual Heterogeneity in {R}: The {gmnl} Package",
+  author       = c(person(given = "Mauricio",
+                          family = "Sarrias",
+                          email = "msarrias86@gmail.com"),
+                   person(given = "Ricardo",
+                          family = "Daziano")),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "79",
+  number       = "2",
+  pages        = "1--46",
+  doi          = "10.18637/jss.v079.i02",
+
+  header       = "To cite gmnl in publications use:",
+  textVersion  =
+  paste("Mauricio Sarrias, Ricardo Daziano (2017).",
+        "Multinomial Logit Models with Continuous and Discrete Individual Heterogeneity in R: The gmnl Package.",
+        "Journal of Statistical Software, 79(2), 1-46.",
+        "doi:10.18637/jss.v079.i02")
+)
+
