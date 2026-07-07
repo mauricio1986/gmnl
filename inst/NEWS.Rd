@@ -6,8 +6,8 @@
   \subsection{NEW FEATURES}{
     \itemize{
       \item Fixed compatibility with mlogit >= 2.0-0 and dfidx-based mlogit.data
-  objects. This resolves failures when estimating gmnl models with data
-  produced by recent versions of mlogit.
+  objects. This restores latent-class model estimation with recent versions
+  of mlogit, including examples using the Fishing and Electricity data sets.
     }
   }
 }
