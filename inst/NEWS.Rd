@@ -5,7 +5,9 @@
 \section{CHANGES IN VERSION 1.1-4}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item Fixed bug.
+      \item Fixed compatibility with mlogit >= 2.0-0 and dfidx-based mlogit.data
+  objects. This resolves failures when estimating gmnl models with data
+  produced by recent versions of mlogit.
     }
   }
 }
