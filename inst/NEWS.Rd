@@ -8,6 +8,9 @@
       \item Fixed compatibility with mlogit >= 2.0-0 and dfidx-based mlogit.data
   objects. This restores latent-class model estimation with recent versions
   of mlogit, including examples using the Fishing and Electricity data sets.
+      \item Fixed mixed-mixed logit models when some coefficients are fixed and others
+  are random. Previously, model = "mm" could fail when ranp did not include
+  all variables in the utility specification.
     }
   }
 }
