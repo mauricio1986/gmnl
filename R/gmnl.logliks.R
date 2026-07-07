@@ -653,50 +653,75 @@ ll.mnlogit <- function(theta, y, X, H, Q,
   if (panel) {
     n <- length(unique(id))
     if (length(weights) == 1) weights <- rep(weights, N)
-  }  
+  }
+
+  ## Get variables
+  Vara <- sort(match(names(ranp), colnames(X[[1]])))
+  Varc <- (seq_len(K))[-Vara]
+  Ka <- length(Vara)
+  Kc <- length(Varc)
+  fixed <- Kc > 0L
+  Xa <- lapply(X, function(x) x[, Vara, drop = FALSE])
+  Xc <- lapply(X, function(x) x[, Varc, drop = FALSE])
+
   # Get parameters
-  beta  <- matrix(theta[1L:(K * Q)], nrow = K, ncol = Q) # Matrix K * Q
-  nstds <- if (!correlation) K * Q else (0.5 * K * (K + 1)) * Q
-  stds  <- matrix(theta[(K * Q + 1):(K * Q + nstds)], ncol = Q)
+  beta <- matrix(theta[seq_len(K * Q)], nrow = K, ncol = Q)
   rownames(beta) <- colnames(X[[1]])
-  colnames(beta) <- colnames(stds) <- paste("class", 1:Q, sep = ':')
-  gamma <- theta[-c(1L:(K * Q + nstds))]
-  
+  colnames(beta) <- paste("class", seq_len(Q), sep = ':')
+
+  nstds.q <- if (!correlation) Ka else 0.5 * Ka * (Ka + 1)
+  nstds <- nstds.q * Q
+  stds <- matrix(theta[(K * Q + 1):(K * Q + nstds)], nrow = nstds.q, ncol = Q)
+  colnames(stds) <- paste("class", seq_len(Q), sep = ':')
+  if (!correlation) rownames(stds) <- colnames(X[[1]])[Vara]
+  gamma <- theta[-c(seq_len(K * Q + nstds))]
+
   # Get discrete weights
   ew <- lapply(H, function(x) exp(crossprod(t(x), gamma)))
   sew <- suml(ew)
   Wnq <- lapply(ew, function(x){v <- x / sew; 
                                 v[is.na(v)] <- 0;
                                 as.vector(v)})
-  Wnq <- Reduce(cbind, Wnq) # N*Q matrix: Probability for individual n in segement q
-  
+  Wnq <- Reduce(cbind, Wnq) # N*Q matrix: Probability for individual n in segment q
+
   ## Make random draws
   set.seed(seed)
-  Omega <- make.draws(R * ifelse(panel, n, N), K, haltons)
-  
+  Omega <- make.draws(R * ifelse(panel, n, N), Ka, haltons)
+
   # Make multinomial probability
   XBr <- vector(mode = 'list', length = J)
-  for (j in 1:J) XBr[[j]] <- array(NA, dim = c(N, R, Q))
+  for (j in seq_len(J)) XBr[[j]] <- array(NA, dim = c(N, R, Q))
   nind <- ifelse(panel, n, N)
   if (panel) theIds <- unique(id)
   if (get.bi) bi <- array(NA, dim = c(nind, R, Q, K), 
                           dimnames = list(NULL, NULL, NULL, colnames(X[[1]]))) 
-  for (i in 1:nind) {
+  for (i in seq_len(nind)) {
     if (panel) {
       anid <- theIds[i]
       theRows <- which(id == anid)
     }
     else theRows <- i
-    for (q in 1:Q) {
-      bq <- Makeh.rcoef(beta[, q], stds[, q], ranp, Omega[ , ((i - 1) * R + 1):(i * R), drop = FALSE], 
-                       correlation, Pi = NULL, Slist = NULL, mvar = NULL)
-      for (j in 1:J) {
-        XBr[[j]][theRows, , q] <- crossprod(t(X[[j]][theRows, , drop = FALSE]), bq$br) 
+    for (q in seq_len(Q)) {
+      bq <- Makeh.rcoef(beta[Vara, q], stds[, q], ranp,
+                        Omega[ , ((i - 1) * R + 1):(i * R), drop = FALSE], 
+                        correlation, Pi = NULL, Slist = NULL, mvar = NULL)
+      if (get.bi) {
+        biq <- matrix(beta[, q], nrow = R, ncol = K, byrow = TRUE)
+        colnames(biq) <- colnames(X[[1]])
+        biq[, Vara] <- t(bq$br)
+        bi[i,, q,] <- biq
       }
-      if (get.bi) bi[i,, q,] <- t(bq$br)
+      for (j in seq_len(J)) {
+        xbr <- crossprod(t(Xa[[j]][theRows, , drop = FALSE]), bq$br)
+        if (fixed) {
+          xbf <- as.vector(crossprod(t(Xc[[j]][theRows, , drop = FALSE]), beta[Varc, q]))
+          xbr <- xbr + xbf
+        }
+        XBr[[j]][theRows, , q] <- xbr
+      }
     } 
   }
-  
+
   EXB <- lapply(XBr, function(x) exp(x))
   SEXB  <- suml.array(EXB)
   Pntirq <- lapply(EXB, function(x) x / SEXB) 
@@ -707,7 +732,7 @@ ll.mnlogit <- function(theta, y, X, H, Q,
   Ln   <- apply(WPnq, 1, sum)
   if (get.bi)  Qir <- list(wnq = Wnq, Ln = Ln, Pnrq = Pnrq)
   lnL <- if (panel) sum(log(Ln) * weights[!duplicated(id)]) else sum(log(Ln) * weights)
-  
+
   ## Gradient
   if (gradient) {
     lambda <- mapply(function(y, p) y - p, y, Pntirq, SIMPLIFY =  FALSE) # J list of N * R * Q
@@ -715,45 +740,49 @@ ll.mnlogit <- function(theta, y, X, H, Q,
     Qnq.mod  <-  Wnq.mod * Pnrq # n * R * Q
     if (panel) Qnq.mod <- Qnq.mod[id,,] 
     eta  <- lapply(lambda, function(x) x * Qnq.mod) # J list of N * R * Q
-    
+
     dUdb <- dUds <- vector(mode = 'list', length = J)
-    for (j in 1:J) {
-      dUdb[[j]] <- array(NA, dim = c(N, K, Q))
-      dUds[[j]] <- array(NA, dim = c(N, nrow(stds), Q))
+    for (j in seq_len(J)) {
+      dUdb[[j]] <- array(0, dim = c(N, K, Q))
+      dUds[[j]] <- array(0, dim = c(N, nrow(stds), Q))
     }
-    
-    for (i in 1:nind) {
+
+    for (i in seq_len(nind)) {
       if (panel) {
         anid <- theIds[i]
         theRows <- which(id == anid)
       }
       else theRows <- i
-      for (q in 1:Q) {
-        bq <- Makeh.rcoef(beta[, q], stds[, q], ranp, Omega[ , ((i - 1) * R + 1):(i * R), drop = FALSE], 
+      for (q in seq_len(Q)) {
+        bq <- Makeh.rcoef(beta[Vara, q], stds[, q], ranp,
+                          Omega[ , ((i - 1) * R + 1):(i * R), drop = FALSE], 
                           correlation, Pi = NULL, Slist = NULL, mvar = NULL)
-        for (j in 1:J) {
-          dUdb[[j]][theRows,, q] <- tcrossprod(eta[[j]][theRows,, q, drop = TRUE], bq$d.mu)
-          dUds[[j]][theRows,, q] <- tcrossprod(eta[[j]][theRows,, q, drop = TRUE], bq$d.sigma)
+        for (j in seq_len(J)) {
+          etaj <- matrix(eta[[j]][theRows,, q, drop = FALSE],
+                         nrow = length(theRows), ncol = R)
+          if (fixed) dUdb[[j]][theRows, Varc, q] <- rowSums(etaj)
+          dUdb[[j]][theRows, Vara, q] <- tcrossprod(etaj, bq$d.mu)
+          dUds[[j]][theRows,, q] <- tcrossprod(etaj, bq$d.sigma)
         }
       } 
     }
-    
+
     if (correlation) {
       vecX <- c()
-      for (i in 1:K) {
-        vecX <- c(vecX, i:K)
+      for (i in seq_len(Ka)) {
+        vecX <- c(vecX, i:Ka)
       }
-      Xac <- lapply(X,  function(x) x[, vecX])
+      Xac <- lapply(Xa,  function(x) x[, vecX, drop = FALSE])
     } else{
-      Xac <- X  
+      Xac <- Xa
     }
-    Xr   <- lapply(X,  function(x) x[, rep(1:K, Q)]) # J list of N * (K*Q)
-    Xacr <- lapply(Xac,  function(x) x[, rep(1:ncol(Xac[[1]]), Q)]) # J list of N * (K*Q)
+    Xr   <- lapply(X,  function(x) x[, rep(seq_len(K), Q), drop = FALSE]) # J list of N * (K*Q)
+    Xacr <- lapply(Xac,  function(x) x[, rep(seq_len(ncol(Xac[[1]])), Q), drop = FALSE])
     dUdb <- lapply(dUdb,  function(x) matrix(x, nrow = N))
     dUds <- lapply(dUds,  function(x) matrix(x, nrow = N))
     grad.beta <- suml(mapply("*", Xr, dUdb, SIMPLIFY =  FALSE)) / R
     grad.stds <- suml(mapply("*", Xacr, dUds, SIMPLIFY =  FALSE)) / R
-    
+
     # weight gradient
     Qnq <- WPnq / Ln
     if (panel) {
@@ -763,10 +792,9 @@ ll.mnlogit <- function(theta, y, X, H, Q,
     }
     Wg <- vector(mode = "list", length = Q)
     IQ <- diag(Q)
-    #for(q in 1:Q) Wg[[q]] <- matrix(NA, N, 1)
-    for (q in 1:Q) Wg[[q]] <- rowSums(Qnq * (repRows(IQ[q, ], N) - repCols(Wnq[, q], Q)))
+    for (q in seq_len(Q)) Wg[[q]] <- rowSums(Qnq * (repRows(IQ[q, ], N) - repCols(Wnq[, q], Q)))
     grad.gamma <- suml(mapply("*", H, Wg, SIMPLIFY = FALSE)) 
-    
+
     gari <- cbind(grad.beta, grad.stds, grad.gamma)
     colnames(gari) <- names(theta)
     attr(lnL, "gradient") <- gari * weights
@@ -783,5 +811,3 @@ ll.mnlogit <- function(theta, y, X, H, Q,
   }
   lnL
 }
-
-
