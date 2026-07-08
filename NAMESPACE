@@ -2,8 +2,13 @@
 
 S3method(AIC,gmnl)
 S3method(BIC,gmnl)
+S3method(as.Formula,gFormula)
 S3method(coef,gmnl)
 S3method(fitted,gmnl)
+S3method(has.intercept,gFormula)
+S3method(has.othervar,Formula)
+S3method(has.othervar,default)
+S3method(has.othervar,gFormula)
 S3method(logLik,gmnl)
 S3method(model.frame,gFormula)
 S3method(model.matrix,gFormula)

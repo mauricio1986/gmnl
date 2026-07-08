@@ -2,6 +2,21 @@
 \title{gmnl News}
 \encoding{UTF-8}
 
+\section{CHANGES IN VERSION 1.1-4}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Fixed compatibility with mlogit >= 2.0-0 and dfidx-based mlogit.data
+  objects. This restores latent-class model estimation with recent versions
+  of mlogit, including examples using the Fishing and Electricity data sets.
+      \item Fixed mixed-mixed logit models when some coefficients are fixed and others
+  are random. Previously, model = "mm" could fail when ranp did not include
+  all variables in the utility specification.
+     \item For mixed-mixed logit models, `Qir` now stores both prior class probabilities
+  (`wnq`) and posterior class probabilities (`qir`).
+    }
+  }
+}
+
 \section{CHANGES IN VERSION 1.1-3.3}{
   \subsection{NEW FEATURES}{
     \itemize{
@@ -32,7 +47,7 @@
 \section{CHANGES IN VERSION 1.1-2}{
   \subsection{FIXED BUGS}{
     \itemize{
-      \item The predicted probabilities for each individual in each class are now accesibles through the element Wnq. 
+      \item The predicted probabilities for each individual in each class are now accesibles through the element Wnq.
     }
   }
 }
@@ -41,7 +56,7 @@
 \section{CHANGES IN VERSION 1.1.1}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item Fixed bug when the data of mlogit class has an id.var, but the model is estimated as a cross-section. Thanks to Maryam Zabihi (maryam.zabihi@mavs.uta.edu) for pointing this out. 
+      \item Fixed bug when the data of mlogit class has an id.var, but the model is estimated as a cross-section. Thanks to Maryam Zabihi (maryam.zabihi@mavs.uta.edu) for pointing this out.
     }
   }
 }
@@ -52,7 +67,7 @@
     \itemize{
       \item Fixed bug in the conditional means when computing WTP in the LC model.
       \item When \code{start} is not null, the log and Sb transformations are not applied.
-      \item z-statistics are now correctly labeled. 
+      \item z-statistics are now correctly labeled.
       \item Fixed bug of initial values when a parameter is distributed as Sb.
     }
   }
@@ -62,7 +77,7 @@
        \item \code{cov.gmnl}, \code{cor.gmnl} and \code{se.cov.gmnl} functions are now deprecated. All these functions are now available in the generic function \code{vcov}.
       \item Added individual-specific estimates for the Mixed-Mixed Model.
       \item Now \code{constraints} argument can be passed to \pkg{maxLik} using \code{gmnl}.
-      \item Slightly improved documentation 
+      \item Slightly improved documentation
     }
   }
 }
