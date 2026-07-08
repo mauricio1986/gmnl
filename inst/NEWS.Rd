@@ -11,6 +11,8 @@
       \item Fixed mixed-mixed logit models when some coefficients are fixed and others
   are random. Previously, model = "mm" could fail when ranp did not include
   all variables in the utility specification.
+     \item For mixed-mixed logit models, `Qir` now stores both prior class probabilities
+  (`wnq`) and posterior class probabilities (`qir`).
     }
   }
 }
