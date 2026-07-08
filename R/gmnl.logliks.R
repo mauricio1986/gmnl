@@ -731,7 +731,7 @@ ll.mnlogit <- function(theta, y, X, H, Q,
   WPnq <- Wnq * Pnq
   Ln   <- apply(WPnq, 1, sum)
   #if (get.bi)  Qir <- list(wnq = Wnq, Ln = Ln, Pnrq = Pnrq)
-  # GitHub Issue 8
+  # GitHub Issue 6
   if (get.bi) {
     ## wnq: prior class-assignment probabilities Pr(q | z_i)
     ## qir: posterior class-assignment probabilities Pr(q | y_i, x_i, z_i)
