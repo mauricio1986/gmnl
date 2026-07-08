@@ -2,7 +2,7 @@ Package: gmnl
 Type: Package
 Title: Multinomial Logit Models with Random Parameters
 Version: 1.1-4
-Date: 2020-05-27
+Date: 2026-07-08
 Authors@R: c(person("Mauricio", "Sarrias", role = c("aut", "cre"),
                     email = "msarrias86@gmail.com", 
                     comment = c(ORCID = "0000-0001-5932-4817")),
